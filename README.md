@@ -1,6 +1,6 @@
 # Projeto A3 - Sistema de Busca e Comparação de Passagens Aéreas
 
-Este projeto consiste na construção de um sistema de backend para simular a busca e comparação de passagens aéreas. Ele atende aos requisitos da UC "Estruturas de Dados e Análise Algorítmica", com foco na implementação e análise de diferentes algoritmos de busca e ordenação em memória.
+Este projeto consiste na construção de um sistema de backend para simular a busca e comparação de passagens aéreas. Ele atende aos requisitos da UC "Estruturas de Dados e Análise de Algoritmos", com foco na implementação e análise de diferentes algoritmos de busca e ordenação em memória.
 
 ### Requisitos Atendidos
 
