@@ -1,14 +1,14 @@
 # Projeto A3 - Sistema de Busca e Comparação de Passagens Aéreas
 
-[cite_start]Este projeto consiste na construção de um sistema de backend para simular a busca e comparação de passagens aéreas[cite: 14]. [cite_start]Ele atende aos requisitos da UC "Estruturas de Dados e Análise Algorítmica", com foco na implementação e análise de diferentes algoritmos de busca e ordenação em memória[cite: 2, 18].
+Este projeto consiste na construção de um sistema de backend para simular a busca e comparação de passagens aéreas. Ele atende aos requisitos da UC "Estruturas de Dados e Análise Algorítmica", com foco na implementação e análise de diferentes algoritmos de busca e ordenação em memória.
 
 ### Requisitos Atendidos
 
-* [cite_start]**Implementação de Algoritmos:** O projeto utiliza algoritmos de ordenação (`Quicksort` e `Bubble Sort`) e de busca (`Busca Linear` e `Busca Binária`) em memória para manipular os dados de voos[cite: 18].
-* [cite_start]**Mensuração de Desempenho:** Mecanismos de tempo de execução foram implementados para comparar o desempenho dos diferentes algoritmos[cite: 29].
-* [cite_start]**Estruturas de Dados:** Os dados do banco de dados são carregados em memória para otimizar o tempo de execução e o uso de recursos computacionais[cite: 17].
-* [cite_start]**Modularização:** O código é organizado em módulos (rotas, controladores e utilidades) para garantir a abstração e a organização[cite: 20].
-* [cite_start]**Funcionalidades:** O sistema permite a pesquisa de voos por critérios como origem, destino, data e valor, além de possibilitar a ordenação dos resultados por preço, horário ou duração da viagem[cite: 15].
+* **Implementação de Algoritmos:** O projeto utiliza algoritmos de ordenação (`Quicksort` e `Bubble Sort`) e de busca (`Busca Linear` e `Busca Binária`) em memória para manipular os dados de voos.
+* **Mensuração de Desempenho:** Mecanismos de tempo de execução foram implementados para comparar o desempenho dos diferentes algoritmos.
+* **Estruturas de Dados:** Os dados do banco de dados são carregados em memória para otimizar o tempo de execução e o uso de recursos computacionais.
+* **Modularização:** O código é organizado em módulos (rotas, controladores e utilidades) para garantir a abstração e a organização.
+* **Funcionalidades:** O sistema permite a pesquisa de voos por critérios como origem, destino, data e valor, além de possibilitar a ordenação dos resultados por preço, horário ou duração da viagem.
 
 ### Tecnologias Utilizadas
 
@@ -70,7 +70,7 @@ Para rodar o projeto localmente, siga os seguintes passos:
 
 ### Próximas Etapas
 
-[cite_start]O próximo passo do projeto é a implementação da **interface de usuário (GUI)**, que deve ser feita usando alguma tecnologia de GUI web, mobile ou desktop[cite: 27].
+O próximo passo do projeto é a implementação da **interface de usuário (GUI)**, que deve ser feita usando alguma tecnologia de GUI web, mobile ou desktop.
 
 ---
 
