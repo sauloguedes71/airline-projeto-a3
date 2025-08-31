@@ -24,7 +24,7 @@ Para rodar o projeto localmente, siga os seguintes passos:
 1.  **Clone o repositório:**
     ```bash
     git clone
-    cd [nome-do-seu-repositorio]
+    cd [nome-do-repositorio]
     ```
 
 2.  **Instale as dependências:**
