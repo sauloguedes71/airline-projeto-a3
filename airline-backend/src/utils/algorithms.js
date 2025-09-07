@@ -8,7 +8,7 @@ export function measureTime(func) {
   return { result, durationInMs };
 }
 
-// 🔹 Função auxiliar para normalizar valores
+//  Função auxiliar para normalizar valores
 function getValue(record, key) {
   if (!record || record[key] === undefined || record[key] === null) return 0;
 

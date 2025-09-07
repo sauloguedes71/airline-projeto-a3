@@ -7,7 +7,7 @@ import {
   binarySearch,
 } from "../utils/algorithms.js";
 
-// 🔹 Função auxiliar para comparar valores (números e datas)
+//  Função auxiliar para comparar valores (números e datas)
 function normalizeValue(record, key) {
   if (!record[key]) return 0;
   if (key.includes("data")) {
