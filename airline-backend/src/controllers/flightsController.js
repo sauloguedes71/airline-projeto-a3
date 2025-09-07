@@ -249,3 +249,47 @@ export async function searchFlights(req, res, next) {
     next(err);
   }
 }
+
+// ------------------ COMPANHIA MAIS BARATA ------------------
+export async function getCheapestCompany(req, res, next) {
+  try {
+    const query = `
+      SELECT
+        companhia,
+        MIN(preco) AS menor_preco
+      FROM
+        flights
+      GROUP BY
+        companhia
+      ORDER BY
+        menor_preco ASC
+      LIMIT 1;
+    `;
+    const result = await pool.query(query);
+    res.json(result.rows[0]);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// ------------------ COMPANHIA MAIS CARA ------------------
+export async function getMostExpensiveCompany(req, res, next) {
+  try {
+    const query = `
+      SELECT
+        companhia,
+        MAX(preco) AS maior_preco
+      FROM
+        flights
+      GROUP BY
+        companhia
+      ORDER BY
+        maior_preco DESC
+      LIMIT 1;
+    `;
+    const result = await pool.query(query);
+    res.json(result.rows[0]);
+  } catch (err) {
+    next(err);
+  }
+}
