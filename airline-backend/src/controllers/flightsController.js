@@ -7,6 +7,15 @@ import {
   binarySearch,
 } from "../utils/algorithms.js";
 
+// 🔹 Função auxiliar para comparar valores (números e datas)
+function normalizeValue(record, key) {
+  if (!record[key]) return 0;
+  if (key.includes("data")) {
+    return new Date(record[key]).getTime(); // converte data -> número
+  }
+  return Number(record[key]) || record[key]; // se for número, converte
+}
+
 // ------------------ LISTAR VOOS ------------------
 export async function getFlights(req, res, next) {
   try {
@@ -50,7 +59,9 @@ export async function getFlights(req, res, next) {
 
         // Adicione a lógica de escolha do algoritmo
         if (algorithm === "quicksort") {
-          sortedResult = measureTime(() => quickSort(flights, sortBy, order));
+          sortedResult = measureTime(() =>
+            quickSort(flights, sortBy, order, normalizeValue)
+          );
           console.log(
             `Ordenação por ${sortBy} com Quicksort: ${sortedResult.durationInMs.toFixed(
               3
@@ -58,7 +69,9 @@ export async function getFlights(req, res, next) {
           );
         } else {
           // default para bubble sort
-          sortedResult = measureTime(() => bubbleSort(flights, sortBy, order));
+          sortedResult = measureTime(() =>
+            bubbleSort(flights, sortBy, order, normalizeValue)
+          );
           console.log(
             `Ordenação por ${sortBy} com Bubble Sort: ${sortedResult.durationInMs.toFixed(
               3
@@ -184,7 +197,9 @@ export async function searchFlights(req, res, next) {
 
     if (algorithm === "binary") {
       //Ordena a lista de voos ANTES de fazer a busca binária.
-      const sortedResult = measureTime(() => quickSort(flights, key, "asc"));
+      const sortedResult = measureTime(() =>
+        quickSort(flights, key, "asc", normalizeValue)
+      );
       flights = sortedResult.result;
       totalDuration += sortedResult.durationInMs;
 

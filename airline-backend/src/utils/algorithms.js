@@ -8,15 +8,37 @@ export function measureTime(func) {
   return { result, durationInMs };
 }
 
-// Implementação do algoritmo Bubble Sort 
-export function bubbleSort(arr, key, order) {
-  const n = arr.length;
-  for (let i = 0; i < n - 1; i++) {
-    for (let j = 0; j < n - i - 1; j++) {
-      let shouldSwap = false;
-      const val1 = Number(arr[j][key]);
-      const val2 = Number(arr[j + 1][key]);
+// 🔹 Função auxiliar para normalizar valores
+function getValue(record, key) {
+  if (!record || record[key] === undefined || record[key] === null) return 0;
 
+  // Se o campo for data (ex: data_ida), converte para timestamp
+  if (key.toLowerCase().includes("data")) {
+    return new Date(record[key]).getTime();
+  }
+
+  // Se for número, garante conversão
+  if (!isNaN(record[key])) {
+    return Number(record[key]);
+  }
+
+  // Fallback: retorna como string para comparar
+  return String(record[key]);
+}
+
+// ----------------- BUBBLE SORT (versão otimizada e segura) -----------------
+export function bubbleSort(arr, key, order = "asc") {
+  const sorted = [...arr];
+  const n = sorted.length;
+  let swapped;
+
+  for (let i = 0; i < n - 1; i++) {
+    swapped = false;
+    for (let j = 0; j < n - i - 1; j++) {
+      const val1 = getValue(sorted[j][key]);
+      const val2 = getValue(sorted[j + 1][key]);
+
+      let shouldSwap = false;
       if (order === "asc") {
         shouldSwap = val1 > val2;
       } else {
@@ -24,24 +46,25 @@ export function bubbleSort(arr, key, order) {
       }
 
       if (shouldSwap) {
-        // Troca os elementos
-        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+        [sorted[j], sorted[j + 1]] = [sorted[j + 1], sorted[j]];
       }
     }
+
+    // 🔹 Se nenhuma troca ocorreu, o array já está ordenado → encerra antes
+    if (!swapped) break;
   }
-  return arr;
+  return sorted;
 }
 
-// A função de particionamento do Quicksort 
+// A função de particionamento do Quicksort
 function partition(arr, start, end, key, order) {
-  const pivotValue = Number(arr[end][key]);
+  const pivotValue = getValue(arr[end], key);
   let pivotIndex = start;
 
   for (let i = start; i < end; i++) {
-    const shouldSwap =
-      order === "asc"
-        ? Number(arr[i][key]) < pivotValue
-        : Number(arr[i][key]) > pivotValue;
+    const val = getValue(arr[i], key);
+
+    const shouldSwap = order === "asc" ? val < pivotValue : val > pivotValue;
 
     if (shouldSwap) {
       [arr[i], arr[pivotIndex]] = [arr[pivotIndex], arr[i]];
@@ -53,22 +76,35 @@ function partition(arr, start, end, key, order) {
   return pivotIndex;
 }
 
-// O algoritmo Quicksort
-export function quickSort(arr, key, order, start = 0, end = arr.length - 1) {
-  if (start >= end) {
-    return arr;
+// ----------------- QUICK SORT (versão segura) -----------------
+export function quickSort(arr, key, order = "asc") {
+  if (!arr || arr.length <= 1) return arr;
+
+  const array = [...arr]; // copia para não mutar
+  const stack = [[0, array.length - 1]];
+
+  while (stack.length > 0) {
+    const [start, end] = stack.pop();
+    if (start >= end) continue;
+
+    const pivotIndex = partition(array, start, end, key, order);
+
+    // Adiciona lados na pilha
+    if (pivotIndex - 1 > start) {
+      stack.push([start, pivotIndex - 1]);
+    }
+    if (pivotIndex + 1 < end) {
+      stack.push([pivotIndex + 1, end]);
+    }
   }
 
-  const index = partition(arr, start, end, key, order);
-  quickSort(arr, key, order, start, index - 1);
-  quickSort(arr, key, order, index + 1, end);
-  return arr;
+  return array;
 }
 
 // A função de busca linear
 export function linearSearch(arr, key, value) {
   for (let i = 0; i < arr.length; i++) {
-    if (String(arr[i][key]) === String(value)) {
+    if (String(getValue(arr[i], key)) === String(value)) {
       return arr[i]; // Retorna o objeto encontrado
     }
   }
@@ -79,11 +115,11 @@ export function linearSearch(arr, key, value) {
 export function binarySearch(arr, key, value) {
   let start = 0;
   let end = arr.length - 1;
+  const searchValue = getValue({ [key]: value }, key);
 
   while (start <= end) {
     let mid = Math.floor((start + end) / 2);
     const midValue = Number(arr[mid][key]);
-    const searchValue = Number(value);
 
     // Usa comparação numérica
     if (midValue === searchValue) {
