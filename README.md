@@ -32,15 +32,21 @@ Para rodar o projeto localmente, siga os seguintes passos:
     npm install
     ```
 
+3. **Configure Docker**
+    * Suba o docker via terminal com ```docker-compose up -d``` ou utilize docker desktop.
+    * Crie um ambiente virtual dentro da pasta voos/. Ative.
+    * Instale pandas, numpy e postgres utilizando pip.
+    * Rode o script voosdb.py para popular o banco de dados.
+
 3.  **Configuração do Banco de Dados:**
     * Crie um banco de dados PostgreSQL na sua máquina local.
     * Crie um arquivo `.env` na raiz do projeto (nunca suba este arquivo para o GitHub) com as seguintes informações:
         ```env
-        DB_USER=seu_usuario_db
-        DB_PASSWORD=sua_senha_db
+        DB_USER=postgres
+        DB_PASSWORD=postgres
         DB_HOST=localhost
         DB_PORT=5432
-        DB_NAME=nome_do_seu_banco
+        DB_NAME=voos
         PORT=4000
         ```
     * Importe o arquivo `.sql` da estrutura e dados das tabelas de voos para o seu banco.
