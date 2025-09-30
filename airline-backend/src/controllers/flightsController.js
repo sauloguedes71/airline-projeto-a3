@@ -30,7 +30,7 @@ export async function getFlights(req, res, next) {
       algorithm = "bubble",
     } = req.query;
 
-    let query = "SELECT * FROM flights WHERE 1=1";
+    let query = "SELECT * FROM voos WHERE 1=1";
     const params = [];
 
     if (origem) {
@@ -53,7 +53,7 @@ export async function getFlights(req, res, next) {
     let sortDuration = 0;
     // Se houver um critério de ordenação, aplica o algoritmo e mede o tempo
     if (sortBy) {
-      const valid = ["preco", "duracao_min", "data_ida"];
+      const valid = ["preco_economica", "duracao_horas", "data_partida"];
       if (valid.includes(sortBy.toLowerCase())) {
         let sortedResult;
 
@@ -104,7 +104,7 @@ export async function getFlights(req, res, next) {
 export async function getFlightById(req, res, next) {
   try {
     const { id } = req.params;
-    const result = await pool.query("SELECT * FROM flights WHERE id = $1", [
+    const result = await pool.query("SELECT * FROM voos WHERE id = $1", [
       id,
     ]);
 
@@ -122,7 +122,7 @@ export async function getFlightStats(req, res, next) {
   try {
     const { origem, destino } = req.query;
 
-    let query = "SELECT preco, duracao_min, data_ida FROM flights WHERE 1=1";
+    let query = "SELECT preco_economica, duracao_horas, data_partida FROM flights WHERE 1=1";
     const params = [];
 
     if (origem) {
@@ -140,7 +140,7 @@ export async function getFlightStats(req, res, next) {
       return res.json({ total: 0, medias: null, min: null, max: null });
     }
 
-    const precos = result.rows.map((r) => r.preco);
+    const precos = result.rows.map((r) => r.preco_economica);
     const duracoes = result.rows.map((r) => r.duracao_min);
     const datasIda = result.rows.map((r) => r.data_ida);
 
@@ -187,7 +187,7 @@ export async function searchFlights(req, res, next) {
         .json({ error: "Parâmetros 'key' e 'value' são obrigatórios." });
     }
 
-    const result = await pool.query("SELECT * FROM flights");
+    const result = await pool.query("SELECT * FROM voos");
     let flights = result.rows;
     let searchResult = null;
     let searchDuration = 0;
@@ -258,7 +258,7 @@ export async function getCheapestCompany(req, res, next) {
         companhia,
         MIN(preco) AS menor_preco
       FROM
-        flights
+        voos
       GROUP BY
         companhia
       ORDER BY
@@ -280,7 +280,7 @@ export async function getMostExpensiveCompany(req, res, next) {
         companhia,
         MAX(preco) AS maior_preco
       FROM
-        flights
+        voos
       GROUP BY
         companhia
       ORDER BY

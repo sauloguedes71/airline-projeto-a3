@@ -1,6 +1,6 @@
 
 -- Script de Backup PostgreSQL - Tabela Voos
--- Gerado em: 2025-09-24 12:21:50
+-- Gerado em: 2025-09-30 14:37:30
 
 -- 1. Backup da estrutura da tabela
 \d voos

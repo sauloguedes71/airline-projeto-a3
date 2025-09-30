@@ -33,7 +33,7 @@ app.use((req, res, next) => {
 // Health check (checa conexão com banco)
 app.get("/health", async (req, res, next) => {
   try {
-    const result = await pool.query("SELECT COUNT(*) FROM flights");
+    const result = await pool.query("SELECT COUNT(*) FROM voos");
     res.json({ status: "ok", records: Number(result.rows[0].count) });
   } catch (e) {
     next(e);
