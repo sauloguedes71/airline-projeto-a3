@@ -3,6 +3,13 @@ import FlightSearch from "./components/FlightSearch";
 import FlightTable from "./components/FlightTable";
 import { getFlights } from "./api";
 
+// Ícone SVG
+const PlaneIcon = (props) => (
+  <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17.8 17.8 20 20l-2.2-2.2zM2 13h15.5l-5.3-5.3a2.5 2.5 0 0 1-3.5 0zM15.5 13H17l-3-3H7L4 7z" />
+  </svg>
+);
+
 export default function App() {
   const [flights, setFlights] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -20,19 +27,36 @@ export default function App() {
   };
 
   return (
-     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center p-6">
-      <div className="w-full max-w-5xl bg-white rounded-2xl shadow-lg p-8">
-        <h1 className="text-3xl font-bold text-blue-700 mb-6 text-center">
-          ✈️ Sistema de Busca de Voos
-        </h1>
-        {/* Formulário de busca */}
-        <FlightSearch onSearch={handleSearch} />
-        {/* Resultados */}
-        {loading ? (
-          <p className="text-center mt-6 text-gray-500">Carregando...</p>
-        ) : (
-          <FlightTable flights={flights} />
-        )}
+    <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50 p-4 font-sans">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-8 pt-8">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <PlaneIcon className="h-8 w-8 text-primary" />
+            <h1 className="text-4xl font-bold text-foreground">Sistema de Busca de Voos</h1>
+          </div>
+          <p className="text-muted-foreground text-lg">Encontre os melhores voos para o seu destino</p>
+        </div>
+
+        {/* Componente de Busca */}
+        <div className="bg-card p-6 rounded-xl shadow-md border border-border">
+          <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
+            <PlaneIcon className="h-6 w-6" />
+            Buscar Voos
+          </h2>
+          <FlightSearch onSearch={handleSearch} />
+        </div>
+
+        {/* Resultados da Busca */}
+        <div className="mt-8">
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+              <p className="text-muted-foreground">Carregando...</p>
+            </div>
+          ) : (
+            <FlightTable flights={flights} />
+          )}
+        </div>
       </div>
     </div>
   );
