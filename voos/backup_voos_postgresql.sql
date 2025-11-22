@@ -1,6 +1,6 @@
 
 -- Script de Backup PostgreSQL - Tabela Voos
--- Gerado em: 2025-09-30 14:37:30
+-- Gerado em: 2025-11-20 22:18:44
 
 -- 1. Backup da estrutura da tabela
 \d voos
@@ -17,7 +17,7 @@ COPY (
     ORDER BY data_partida, companhia
 ) TO STDOUT WITH CSV HEADER;
 
--- 3. EstatÃ­sticas da tabela
+-- 3. Estatísticas da tabela
 SELECT 
     schemaname,
     tablename,
@@ -29,7 +29,7 @@ SELECT
 FROM pg_tables 
 WHERE tablename = 'voos';
 
--- 4. Tamanho da tabela e Ã­ndices
+-- 4. Tamanho da tabela e índices
 SELECT 
     pg_size_pretty(pg_total_relation_size('voos')) as tamanho_total,
     pg_size_pretty(pg_relation_size('voos')) as tamanho_tabela,

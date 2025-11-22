@@ -1,6 +1,7 @@
 import { useState } from "react";
 import FlightSearch from "./components/FlightSearch";
 import FlightTable from "./components/FlightTable";
+import ToggleTheme from "./components/ToggleTheme";
 import { getFlights } from "./api";
 
 // Ícone SVG
@@ -27,8 +28,11 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50 p-4 font-sans">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen glass-animated p-6 flex flex-col items-center backdrop-blur-sm animate-card">
+      <div className="max-w-6xl mx-auto">
+         <div className="absolute right-0 -top-4">
+    <ToggleTheme />
+  </div>
         <div className="text-center mb-8 pt-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <PlaneIcon className="h-8 w-8 text-primary" />
@@ -38,7 +42,7 @@ export default function App() {
         </div>
 
         {/* Componente de Busca */}
-        <div className="bg-card p-6 rounded-xl shadow-md border border-border">
+        <div className="glass-dark p-8 shadow-xl">
           <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
             <PlaneIcon className="h-6 w-6" />
             Buscar Voos

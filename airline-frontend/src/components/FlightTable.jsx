@@ -1,46 +1,66 @@
 export default function FlightTable({ flights }) {
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
+  const formatPrice = (price) =>
+    new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
     }).format(price);
-  };
 
-  if (flights.length === 0) {
+  if (!flights || flights.length === 0) {
     return (
-      <div className="text-center p-8 bg-card rounded-xl border border-border">
-        <p className="text-muted-foreground">Nenhum voo encontrado. Tente buscar por "FRA", "GRU" ou "GOL".</p>
+      <div className="glass-card p-12 text-center rounded-xl animate-fade">
+        <p className="text-xl text-muted-foreground font-semibold">
+          Nenhum voo encontrado.
+        </p>
+        <p className="text-sm opacity-60 mt-2">
+          Ajuste os filtros e tente novamente.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="bg-card rounded-xl shadow-md overflow-hidden border border-border">
-      <table className="min-w-full">
-        <thead className="bg-muted text-foreground uppercase text-xs">
+    <div className="glass-table rounded-2xl overflow-hidden animate-card">
+      <table className="min-w-full divide-y divide-border">
+        
+        <thead className="bg-primary/20 backdrop-blur-md">
           <tr>
-            <th className="py-3 px-4 text-left font-semibold">Origem</th>
-            <th className="py-3 px-4 text-left font-semibold">Destino</th>
-            <th className="py-3 px-4 text-left font-semibold">Companhia</th>
-            <th className="py-3 px-4 text-left font-semibold">Preço</th>
-            <th className="py-3 px-4 text-left font-semibold">Duração</th>
+            <th className="th">Origem</th>
+            <th className="th">Destino</th>
+            <th className="th">Companhia</th>
+            <th className="th">Preço Econômica</th>
+            <th className="th">Executiva</th>
+            <th className="th">Premium</th>
+            <th className="th">Duração</th>
           </tr>
         </thead>
-        <tbody className="bg-card text-foreground">
-          {flights.map((flight) => (
-            <tr key={flight.id} className="border-b border-border hover:bg-accent/50 transition-colors">
-              <td className="py-3 px-4">{flight.origem}</td>
-              <td className="py-3 px-4">{flight.destino}</td>
-              <td className="py-3 px-4">
-                <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded-full">
-                  {flight.companhia}
-                </span>
+
+        <tbody className="divide-y divide-border">
+          {flights.map((f, index) => (
+            <tr
+              key={index}
+              className="hover:bg-white/10 transition-all cursor-pointer"
+            >
+              <td className="td">{f.origem}</td>
+              <td className="td">{f.destino}</td>
+              <td className="td">
+                <span className="tag">{f.companhia}</span>
               </td>
-              <td className="py-3 px-4 font-bold text-secondary">{formatPrice(flight.preco)}</td>
-              <td className="py-3 px-4">{flight.duracao_min} min</td>
+
+              <td className="td text-green-500 font-bold">
+                {formatPrice(f.precos.economica)}
+              </td>
+              <td className="td text-blue-500 font-bold">
+                {formatPrice(f.precos.executiva)}
+              </td>
+              <td className="td text-purple-500 font-bold">
+                {formatPrice(f.precos.premium)}
+              </td>
+
+              <td className="td">{f.duracao_horas} h</td>
             </tr>
           ))}
         </tbody>
+
       </table>
     </div>
   );

@@ -7,22 +7,23 @@ import {
   binarySearch,
 } from "../utils/algorithms.js";
 
-//  Função auxiliar para comparar valores (números e datas)
 function normalizeValue(record, key) {
   if (!record[key]) return 0;
-  if (key.includes("data")) {
-    return new Date(record[key]).getTime(); // converte data -> número
+
+  if (key.toLowerCase().includes("data")) {
+    return new Date(record[key]).getTime();
   }
-  return Number(record[key]) || record[key]; // se for número, converte
+
+  return Number(record[key]) || record[key];
 }
 
-// ------------------ LISTAR VOOS ------------------
 export async function getFlights(req, res, next) {
   try {
     const {
       origem,
       destino,
       companhia,
+      temporada,
       sortBy,
       order,
       page = 1,
@@ -45,37 +46,36 @@ export async function getFlights(req, res, next) {
       params.push(companhia);
       query += ` AND companhia = $${params.length}`;
     }
+    if (temporada) {
+      params.push(temporada);
+      query += ` AND temporada = $${params.length}`;
+    }
 
-    // Executa a consulta SQL para buscar TODOS os voos filtrados (sem paginação SQL)
     const result = await pool.query(query, params);
     let flights = result.rows;
 
     let sortDuration = 0;
-    // Se houver um critério de ordenação, aplica o algoritmo e mede o tempo
     if (sortBy) {
-      const valid = ["preco_economica", "duracao_horas", "data_partida"];
+      const valid = [
+        "preco_economica",
+        "preco_executiva",
+        "preco_premium",
+        "duracao_horas",
+        "data_partida",
+        "antecedencia_dias",
+        "lotacao_media",
+      ];
+
       if (valid.includes(sortBy.toLowerCase())) {
         let sortedResult;
 
-        // Adicione a lógica de escolha do algoritmo
         if (algorithm === "quicksort") {
           sortedResult = measureTime(() =>
             quickSort(flights, sortBy, order, normalizeValue)
           );
-          console.log(
-            `Ordenação por ${sortBy} com Quicksort: ${sortedResult.durationInMs.toFixed(
-              3
-            )} ms`
-          );
         } else {
-          // default para bubble sort
           sortedResult = measureTime(() =>
             bubbleSort(flights, sortBy, order, normalizeValue)
-          );
-          console.log(
-            `Ordenação por ${sortBy} com Bubble Sort: ${sortedResult.durationInMs.toFixed(
-              3
-            )} ms`
           );
         }
 
@@ -84,210 +84,186 @@ export async function getFlights(req, res, next) {
       }
     }
 
-    // 3Aplica a paginação na lista que já está ordenada
     const offset = (page - 1) * pageSize;
     const paginatedFlights = flights.slice(offset, offset + pageSize);
 
-    // Envia a resposta com a lista paginada e o tempo de ordenação
+    const formatted = paginatedFlights.map((f) => ({
+      id: f.id_voo,
+      data_partida: f.data_partida,
+      origem: f.origem,
+      destino: f.destino,
+      duracao_horas: f.duracao_horas,
+      precos: {
+        economica: f.preco_economica,
+        executiva: f.preco_executiva,
+        premium: f.preco_premium,
+      },
+      temporada: f.temporada,
+      antecedencia_dias: f.antecedencia_dias,
+      lotacao_media: f.lotacao_media,
+      companhia: f.companhia,
+    }));
+
     res.json({
       total: flights.length,
-      data: paginatedFlights,
-      sortDuration: sortDuration,
-      algorithm: algorithm, // Para saber qual algoritmo foi usado
+      data: formatted,
+      sortDuration,
+      algorithm,
     });
   } catch (err) {
     next(err);
   }
 }
 
-// ------------------ VOOS POR ID ------------------
+
 export async function getFlightById(req, res, next) {
   try {
     const { id } = req.params;
-    const result = await pool.query("SELECT * FROM voos WHERE id = $1", [
-      id,
-    ]);
+    const result = await pool.query(
+      "SELECT * FROM voos WHERE id_voo = $1",
+      [id]
+    );
 
     if (result.rowCount === 0) {
       return res.status(404).json({ error: "Voo não encontrado" });
     }
-    res.json(result.rows[0]);
-  } catch (err) {
-    next(err);
-  }
-}
 
-// ------------------ ESTATÍSTICAS ------------------
-export async function getFlightStats(req, res, next) {
-  try {
-    const { origem, destino } = req.query;
-
-    let query = "SELECT preco_economica, duracao_horas, data_partida FROM flights WHERE 1=1";
-    const params = [];
-
-    if (origem) {
-      params.push(origem);
-      query += ` AND origem = $${params.length}`;
-    }
-    if (destino) {
-      params.push(destino);
-      query += ` AND destino = $${params.length}`;
-    }
-
-    const result = await pool.query(query, params);
-
-    if (result.rowCount === 0) {
-      return res.json({ total: 0, medias: null, min: null, max: null });
-    }
-
-    const precos = result.rows.map((r) => r.preco_economica);
-    const duracoes = result.rows.map((r) => r.duracao_min);
-    const datasIda = result.rows.map((r) => r.data_ida);
-
-    const total = result.rowCount;
-    const somaPreco = precos.reduce((a, b) => a + b, 0);
-    const somaDur = duracoes.reduce((a, b) => a + b, 0);
-
-    const min = {
-      preco: Math.min(...precos),
-      dataIda: datasIda.length
-        ? new Date(Math.min(...datasIda.map((d) => new Date(d)))).toISOString()
-        : null,
-    };
-
-    const max = {
-      preco: Math.max(...precos),
-      dataIda: datasIda.length
-        ? new Date(Math.max(...datasIda.map((d) => new Date(d)))).toISOString()
-        : null,
-    };
+    const f = result.rows[0];
 
     res.json({
-      total,
-      medias: {
-        preco: Number((somaPreco / total).toFixed(2)),
-        duracaoMin: Math.round(somaDur / total),
+      id: f.id_voo,
+      data_partida: f.data_partida,
+      origem: f.origem,
+      destino: f.destino,
+      duracao_horas: f.duracao_horas,
+      precos: {
+        economica: f.preco_economica,
+        executiva: f.preco_executiva,
+        premium: f.preco_premium,
       },
-      min,
-      max,
+      temporada: f.temporada,
+      antecedencia_dias: f.antecedencia_dias,
+      lotacao_media: f.lotacao_media,
+      companhia: f.companhia,
     });
   } catch (err) {
     next(err);
   }
 }
 
-// ------------------ BUSCA DE VOOS ------------------
+export async function getFlightStats(req, res, next) {
+  try {
+    const result = await pool.query(
+      "SELECT preco_economica, preco_executiva, preco_premium, duracao_horas FROM voos"
+    );
+
+    if (result.rowCount === 0) {
+      return res.json({ total: 0 });
+    }
+
+    const dados = result.rows;
+
+    const precosTodos = dados.flatMap((d) => [
+      d.preco_economica,
+      d.preco_executiva,
+      d.preco_premium,
+    ]);
+
+    const duracoes = dados.map((d) => d.duracao_horas);
+
+    res.json({
+      total: dados.length,
+      mediaPreco: (
+        precosTodos.reduce((a, b) => a + b, 0) / precosTodos.length
+      ).toFixed(2),
+      mediaDuracao: (
+        duracoes.reduce((a, b) => a + b, 0) / duracoes.length
+      ).toFixed(2),
+      minPreco: Math.min(...precosTodos),
+      maxPreco: Math.max(...precosTodos),
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function searchFlights(req, res, next) {
   try {
     const { key, value, algorithm = "linear" } = req.query;
 
     if (!key || !value) {
-      return res
-        .status(400)
-        .json({ error: "Parâmetros 'key' e 'value' são obrigatórios." });
+      return res.status(400).json({
+        error: "Parâmetros key e value são obrigatórios.",
+      });
     }
 
     const result = await pool.query("SELECT * FROM voos");
     let flights = result.rows;
-    let searchResult = null;
-    let searchDuration = 0;
 
-    // Variáveis para medir o tempo total, incluindo a ordenação
-    let totalDuration = 0;
+    let searchResult = null;
+    let duration = 0;
 
     if (algorithm === "binary") {
-      //Ordena a lista de voos ANTES de fazer a busca binária.
-      const sortedResult = measureTime(() =>
+      const sorted = measureTime(() =>
         quickSort(flights, key, "asc", normalizeValue)
       );
-      flights = sortedResult.result;
-      totalDuration += sortedResult.durationInMs;
 
-      //Agora que está ordenada, execute a busca binária.
-      const search = measureTime(() => binarySearch(flights, key, value));
-      searchResult = search.result;
-      searchDuration = search.durationInMs;
-      totalDuration += searchDuration;
+      flights = sorted.result;
+      duration += sorted.durationInMs;
 
-      console.log(
-        `Busca Binária por '${key}' com valor '${value}': ${searchDuration.toFixed(
-          3
-        )} ms`
+      const found = measureTime(() =>
+        binarySearch(flights, key, value)
       );
-      console.log(
-        `Tempo total (ordenação + busca): ${totalDuration.toFixed(3)} ms`
-      );
+
+      searchResult = found.result;
+      duration += found.durationInMs;
     } else {
-      // default para busca linear
-      const search = measureTime(() => linearSearch(flights, key, value));
-      searchResult = search.result;
-      searchDuration = search.durationInMs;
-      totalDuration = searchDuration;
-      console.log(
-        `Busca Linear por '${key}' com valor '${value}': ${searchDuration.toFixed(
-          3
-        )} ms`
+      const found = measureTime(() =>
+        linearSearch(flights, key, value)
       );
+
+      searchResult = found.result;
+      duration = found.durationInMs;
     }
 
-    if (searchResult) {
-      res.json({
-        result: searchResult,
-        searchDuration: searchDuration,
-        totalDuration: totalDuration,
-        algorithm: algorithm,
-      });
-    } else {
-      res.status(404).json({
-        error: "Voo não encontrado",
-        searchDuration: searchDuration,
-        totalDuration: totalDuration,
-        algorithm: algorithm,
-      });
-    }
+    res.json({
+      result: searchResult,
+      duration,
+      algorithm,
+    });
   } catch (err) {
     next(err);
   }
 }
 
-// ------------------ COMPANHIA MAIS BARATA ------------------
 export async function getCheapestCompany(req, res, next) {
   try {
-    const query = `
-      SELECT
-        companhia,
-        MIN(preco) AS menor_preco
-      FROM
-        voos
-      GROUP BY
-        companhia
-      ORDER BY
-        menor_preco ASC
-      LIMIT 1;
-    `;
-    const result = await pool.query(query);
+    const result = await pool.query(`
+      SELECT companhia,
+             MIN(LEAST(preco_economica, preco_executiva, preco_premium)) AS menor
+      FROM voos
+      GROUP BY companhia
+      ORDER BY menor ASC
+      LIMIT 1
+    `);
+
     res.json(result.rows[0]);
   } catch (err) {
     next(err);
   }
 }
 
-// ------------------ COMPANHIA MAIS CARA ------------------
 export async function getMostExpensiveCompany(req, res, next) {
   try {
-    const query = `
-      SELECT
-        companhia,
-        MAX(preco) AS maior_preco
-      FROM
-        voos
-      GROUP BY
-        companhia
-      ORDER BY
-        maior_preco DESC
-      LIMIT 1;
-    `;
-    const result = await pool.query(query);
+    const result = await pool.query(`
+      SELECT companhia,
+             MAX(GREATEST(preco_economica, preco_executiva, preco_premium)) AS maior
+      FROM voos
+      GROUP BY companhia
+      ORDER BY maior DESC
+      LIMIT 1
+    `);
+
     res.json(result.rows[0]);
   } catch (err) {
     next(err);
